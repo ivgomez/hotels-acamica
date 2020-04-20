@@ -9,7 +9,9 @@ class Hero extends Component {
           <div className="container">
             <h1 className="title">Hoteles</h1>
             <h2 className="subtitle">
-              desde el <strong>{filters.dateFrom}</strong> hasta el{" "}
+              {`${filters.dateFrom ? ` desde el ` : ""}`}{" "}
+              <strong>{filters.dateFrom}</strong>
+              {`${filters.dateTo ? ` hasta el ` : ""}`}{" "}
               <strong>{filters.dateTo}</strong>
               {`${
                 filters.country !== "select" ? ` en ${filters.country}` : ""
