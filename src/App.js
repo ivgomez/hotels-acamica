@@ -1,26 +1,176 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component, Fragment } from "react";
+import NoResults from "./components/NoResults";
+import { API_URL } from "./utils/constants";
+import Hotels from "./components/hotelComponents/Hotels";
+import Filters from "./components/Filters/Filters";
+import Hero from "./components/Hero";
+import Moment from "moment";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      filters: {
+        dateFrom: Moment(new Date()).format("YYYY-MM-DD"),
+        dateTo: Moment().add(1, "month").format("YYYY-MM-DD"),
+        country: "select",
+        price: "select",
+        rooms: "select",
+      },
+      hotels: [],
+      hotelesFiltered: [],
+      isAllLoaded: false,
+    };
+    this.handleFilterChange = this.handleFilterChange.bind(this);
+  }
+
+  componentDidMount() {
+    this.getHotels();
+  }
+
+  getHotels = async () => {
+    return await fetch(API_URL)
+      .then((hotels) => hotels.json())
+      .then((hotels) =>
+        this.setState({
+          hotels: hotels,
+          hotelesFiltered: hotels,
+          isAllLoaded: true,
+        })
+      )
+      .catch(() => console.log("Error en la petición..."));
+  };
+
+  handleHotelFilter(payload) {
+    let dataFiltered;
+    if (
+      payload.country === "select" &&
+      payload.price === "select" &&
+      payload.rooms === "select"
+    ) {
+      dataFiltered = this.state.hotels.filter((v, i) => {
+        return (
+          payload.dateFrom >=
+            Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
+          payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
+        );
+      });
+    }
+    if (
+      payload.country !== "select" &&
+      payload.price === "select" &&
+      payload.rooms === "select"
+    ) {
+      dataFiltered = this.state.hotels.filter((v, i) => {
+        return (
+          v["country"] === payload.country &&
+          payload.dateFrom >=
+            Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
+          payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
+        );
+      });
+    }
+    if (
+      payload.country === "select" &&
+      payload.price !== "select" &&
+      payload.rooms === "select"
+    ) {
+      dataFiltered = this.state.hotels.filter((v, i) => {
+        return (
+          v["price"] === parseInt(payload.price) &&
+          payload.dateFrom >=
+            Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
+          payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
+        );
+      });
+    }
+    if (
+      payload.country === "select" &&
+      payload.price === "select" &&
+      payload.rooms !== "select"
+    ) {
+      dataFiltered = this.state.hotels.filter((v, i) => {
+        return (
+          v["rooms"] === parseInt(payload.rooms) &&
+          payload.dateFrom >=
+            Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
+          payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
+        );
+      });
+    }
+    if (
+      payload.country !== "select" &&
+      payload.price !== "select" &&
+      payload.rooms === "select"
+    ) {
+      dataFiltered = this.state.hotels.filter((v, i) => {
+        return (
+          v["country"] === payload.country &&
+          v["price"] === parseInt(payload.price) &&
+          payload.dateFrom >=
+            Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
+          payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
+        );
+      });
+    }
+    if (
+      payload.country !== "select" &&
+      payload.price === "select" &&
+      payload.rooms !== "select"
+    ) {
+      dataFiltered = this.state.hotels.filter((v, i) => {
+        return (
+          v["country"] === payload.country &&
+          v["rooms"] === parseInt(payload.rooms) &&
+          payload.dateFrom >=
+            Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
+          payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
+        );
+      });
+    }
+    if (
+      payload.country !== "select" &&
+      payload.price !== "select" &&
+      payload.rooms !== "select"
+    ) {
+      dataFiltered = this.state.hotels.filter((v, i) => {
+        return (
+          v["country"] === payload.country &&
+          v["price"] === parseInt(payload.price) &&
+          v["rooms"] === parseInt(payload.rooms) &&
+          payload.dateFrom >=
+            Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
+          payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
+        );
+      });
+    }
+
+    return dataFiltered;
+  }
+
+  handleFilterChange(payload) {
+    this.setState((state) => ({
+      filters: payload,
+      hotelesFiltered: this.handleHotelFilter(payload),
+    }));
+  }
+
+  render() {
+    return (
+      <Fragment>
+        <Hero filters={this.state.filters} />
+        <Filters
+          filters={this.state.filters}
+          onFilterChange={this.handleFilterChange}
+        />
+        {this.state.isAllLoaded ? (
+          <Hotels hotel={this.state.hotelesFiltered} />
+        ) : (
+          <NoResults />
+        )}
+      </Fragment>
+    );
+  }
 }
 
 export default App;
