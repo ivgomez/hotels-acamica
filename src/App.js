@@ -52,7 +52,7 @@ class App extends Component {
         this.state.filters.dateFrom && this.state.filters.dateTo
           ? this.state.hotels.filter((v, i) => {
               return (
-                payload.dateTo > payload.dateFrom &&
+                payload.dateTo >= payload.dateFrom &&
                 payload.dateFrom >=
                   Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
                 payload.dateTo <=
@@ -70,7 +70,7 @@ class App extends Component {
         ? (dataFiltered = this.state.hotels.filter((v, i) => {
             return (
               v["country"] === payload.country &&
-              payload.dateTo > payload.dateFrom &&
+              payload.dateTo >= payload.dateFrom &&
               payload.dateFrom >=
                 Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
               payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
@@ -89,7 +89,7 @@ class App extends Component {
         ? (dataFiltered = this.state.hotels.filter((v, i) => {
             return (
               v["price"] === parseInt(payload.price) &&
-              payload.dateTo > payload.dateFrom &&
+              payload.dateTo >= payload.dateFrom &&
               payload.dateFrom >=
                 Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
               payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
@@ -108,7 +108,7 @@ class App extends Component {
         ? (dataFiltered = this.state.hotels.filter((v, i) => {
             return (
               v["rooms"] === parseInt(payload.rooms) &&
-              payload.dateTo > payload.dateFrom &&
+              payload.dateTo >= payload.dateFrom &&
               payload.dateFrom >=
                 Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
               payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
@@ -128,7 +128,7 @@ class App extends Component {
             return (
               v["country"] === payload.country &&
               v["price"] === parseInt(payload.price) &&
-              payload.dateTo > payload.dateFrom &&
+              payload.dateTo >= payload.dateFrom &&
               payload.dateFrom >=
                 Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
               payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
@@ -151,7 +151,7 @@ class App extends Component {
             return (
               v["country"] === payload.country &&
               v["rooms"] === parseInt(payload.rooms) &&
-              payload.dateTo > payload.dateFrom &&
+              payload.dateTo >= payload.dateFrom &&
               payload.dateFrom >=
                 Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
               payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
@@ -212,8 +212,6 @@ class App extends Component {
         "availabilityTo ",
         Moment(this.state.hotels[8].availabilityTo).format("YYYY-MM-DD")
       );
-
-    //console.log("dateFrom ", this.state.filters.dateFrom || false);
 
     return (
       <Fragment>
