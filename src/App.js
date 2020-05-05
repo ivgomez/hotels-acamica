@@ -41,178 +41,31 @@ class App extends Component {
       .catch(() => console.log("Error en la petición..."));
   };
 
-  handleHotelFilter(payload) {
-    let dataFiltered;
-    if (
-      payload.country === "select" &&
-      payload.price === "select" &&
-      payload.rooms === "select"
-    ) {
-      dataFiltered =
-        this.state.filters.dateFrom && this.state.filters.dateTo
-          ? this.state.hotels.filter((v, i) => {
-              return (
-                payload.dateTo >= payload.dateFrom &&
-                payload.dateFrom >=
-                  Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
-                payload.dateTo <=
-                  Moment(v["availabilityTo"]).format("YYYY-MM-DD")
-              );
-            })
-          : (dataFiltered = this.state.hotels);
-    }
-    if (
-      payload.country !== "select" &&
-      payload.price === "select" &&
-      payload.rooms === "select"
-    ) {
-      this.state.filters.dateFrom && this.state.filters.dateTo
-        ? (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["country"] === payload.country &&
-              payload.dateTo >= payload.dateFrom &&
-              payload.dateFrom >=
-                Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
-              payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
-            );
-          }))
-        : (dataFiltered = this.state.hotels.filter((v, i) => {
-            return v["country"] === payload.country;
-          }));
-    }
-    if (
-      payload.country === "select" &&
-      payload.price !== "select" &&
-      payload.rooms === "select"
-    ) {
-      this.state.filters.dateFrom && this.state.filters.dateTo
-        ? (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["price"] === parseInt(payload.price) &&
-              payload.dateTo >= payload.dateFrom &&
-              payload.dateFrom >=
-                Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
-              payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
-            );
-          }))
-        : (dataFiltered = this.state.hotels.filter((v, i) => {
-            return v["price"] === parseInt(payload.price);
-          }));
-    }
-    if (
-      payload.country === "select" &&
-      payload.price === "select" &&
-      payload.rooms !== "select"
-    ) {
-      this.state.filters.dateFrom && this.state.filters.dateTo
-        ? (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["rooms"] === parseInt(payload.rooms) &&
-              payload.dateTo >= payload.dateFrom &&
-              payload.dateFrom >=
-                Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
-              payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
-            );
-          }))
-        : (dataFiltered = this.state.hotels.filter((v, i) => {
-            return v["rooms"] === parseInt(payload.rooms);
-          }));
-    }
-    if (
-      payload.country !== "select" &&
-      payload.price !== "select" &&
-      payload.rooms === "select"
-    ) {
-      this.state.filters.dateFrom && this.state.filters.dateTo
-        ? (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["country"] === payload.country &&
-              v["price"] === parseInt(payload.price) &&
-              payload.dateTo >= payload.dateFrom &&
-              payload.dateFrom >=
-                Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
-              payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
-            );
-          }))
-        : (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["country"] === payload.country &&
-              v["price"] === parseInt(payload.price)
-            );
-          }));
-    }
-    if (
-      payload.country !== "select" &&
-      payload.price === "select" &&
-      payload.rooms !== "select"
-    ) {
-      this.state.filters.dateFrom && this.state.filters.dateTo
-        ? (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["country"] === payload.country &&
-              v["rooms"] === parseInt(payload.rooms) &&
-              payload.dateTo >= payload.dateFrom &&
-              payload.dateFrom >=
-                Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
-              payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
-            );
-          }))
-        : (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["country"] === payload.country &&
-              v["rooms"] === parseInt(payload.rooms)
-            );
-          }));
-    }
-    if (
-      payload.country !== "select" &&
-      payload.price !== "select" &&
-      payload.rooms !== "select"
-    ) {
-      this.state.filters.dateFrom && this.state.filters.dateTo
-        ? (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["country"] === payload.country &&
-              v["price"] === parseInt(payload.price) &&
-              v["rooms"] === parseInt(payload.rooms) &&
-              payload.dateTo > payload.dateFrom &&
-              payload.dateFrom >=
-                Moment(v["availabilityFrom"]).format("YYYY-MM-DD") &&
-              payload.dateTo <= Moment(v["availabilityTo"]).format("YYYY-MM-DD")
-            );
-          }))
-        : (dataFiltered = this.state.hotels.filter((v, i) => {
-            return (
-              v["country"] === payload.country &&
-              v["price"] === parseInt(payload.price) &&
-              v["rooms"] === parseInt(payload.rooms)
-            );
-          }));
-    }
-
-    return dataFiltered;
+  filterHotels(filters, hotels) {
+    const { dateFrom, dateTo, country, price, rooms } = filters;
+    return hotels.filter((hotel) => {
+      return (
+        Moment(hotel.availabilityFrom).format("YYYY-MM-DD") >= dateFrom &&
+        Moment(hotel.availabilityTo).format("YYYY-MM-DD") <= dateTo &&
+        hotel.rooms <= (rooms !== "select" ? rooms : hotel.rooms) &&
+        hotel.price <= (price !== "select" ? parseInt(price) : hotel.price) &&
+        hotel.country.trim().toLowerCase() ===
+          (country !== "select"
+            ? country.trim().toLowerCase()
+            : hotel.country.trim().toLowerCase())
+      );
+    });
   }
 
   handleFilterChange(payload) {
-    this.setState((state) => ({
+    const newFilteredHotels = this.filterHotels(payload, this.state.hotels);
+    this.setState({
       filters: payload,
-      hotelesFiltered: this.handleHotelFilter(payload),
-    }));
+      hotelesFiltered: newFilteredHotels,
+    });
   }
 
   render() {
-    this.state.hotels.length > 0 &&
-      console.log(
-        "availabilityFrom ",
-        Moment(this.state.hotels[8].availabilityFrom).format("YYYY-MM-DD")
-      );
-
-    this.state.hotels.length > 0 &&
-      console.log(
-        "availabilityTo ",
-        Moment(this.state.hotels[8].availabilityTo).format("YYYY-MM-DD")
-      );
-
     return (
       <Fragment>
         <Hero filters={this.state.filters} />

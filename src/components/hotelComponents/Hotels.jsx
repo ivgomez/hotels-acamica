@@ -8,7 +8,7 @@ class Hotels extends Component {
       <section className="section" style={{ marginTop: "3em" }}>
         <div className="container">
           <div className="columns is-multiline">
-            {hotel.length > 0 ? (
+            {hotel?.length > 0 ? (
               hotel.map((data, index) => (
                 <div className="column is-one-third" key={index}>
                   <Hotel data={data} />
